@@ -56,6 +56,9 @@ public class RoxyModuleTokenReplacer extends LoggingObject implements ModuleToke
             FileReader reader = null;
             try {
                 reader = new FileReader(file);
+                if (logger.isInfoEnabled()) {
+                    logger.info("Loading module properties from: " + file.getAbsolutePath());
+                }
                 properties.load(reader);
             } catch (IOException ex) {
                 logger.warn(
@@ -80,6 +83,9 @@ public class RoxyModuleTokenReplacer extends LoggingObject implements ModuleToke
             if (moduleText.contains(skey)) {
                 String value = properties.getProperty(key.toString());
                 value = helper.replacePlaceholders(value, properties);
+                if (logger.isDebugEnabled()) {
+                    logger.debug(format("Replacing %s with %s", skey, value));
+                }
                 moduleText = moduleText.replace(skey, value);
             }
         }

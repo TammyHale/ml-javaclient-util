@@ -13,6 +13,8 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.springframework.util.FileCopyUtils;
+
 import com.marklogic.client.helper.LoggingObject;
 import com.marklogic.client.modulesloader.ModulesManager;
 import com.marklogic.client.modulesloader.xcc.CommaDelimitedPermissionsParser;
@@ -24,6 +26,7 @@ import com.marklogic.xcc.ContentCreateOptions;
 import com.marklogic.xcc.ContentFactory;
 import com.marklogic.xcc.ContentSource;
 import com.marklogic.xcc.ContentSourceFactory;
+import com.marklogic.xcc.DocumentFormat;
 import com.marklogic.xcc.SecurityOptions;
 import com.marklogic.xcc.Session;
 import com.marklogic.xcc.exceptions.RequestException;
@@ -60,7 +63,10 @@ public class XccAssetLoader extends LoggingObject implements FileVisitor<Path> {
     private Path currentRootPath;
     private Set<File> filesLoaded;
 
+    // Manages when modules were last loaded
     private ModulesManager modulesManager;
+
+    private ModuleTokenReplacer moduleTokenReplacer;
 
     /**
      * For walking one or many paths and loading modules in each of them.
@@ -189,7 +195,7 @@ public class XccAssetLoader extends LoggingObject implements FileVisitor<Path> {
             logger.info(format("Inserting module with URI: %s", uri));
         }
 
-        Content content = ContentFactory.newContent(uri, f, options);
+        Content content = buildContent(uri, f, options);
         try {
             activeSession.insertContent(content);
             if (modulesManager != null) {
@@ -198,6 +204,36 @@ public class XccAssetLoader extends LoggingObject implements FileVisitor<Path> {
         } catch (RequestException re) {
             throw new RuntimeException("Unable to insert content at URI: " + uri + "; cause: " + re.getMessage(), re);
         }
+    }
+
+    /**
+     * If we have a ModuleTokenReplacer, we try to use it. But if we can't load the file as a string, we just assume we
+     * can't replace any tokens in it.
+     * 
+     * @param uri
+     * @param f
+     * @param options
+     * @return
+     */
+    protected Content buildContent(String uri, File f, ContentCreateOptions options) {
+        Content content = null;
+        if (moduleTokenReplacer != null && moduleCanBeReadAsString(options.getFormat())) {
+            try {
+                String text = new String(FileCopyUtils.copyToByteArray(f));
+                text = moduleTokenReplacer.replaceTokensInModule(text);
+                content = ContentFactory.newContent(uri, text, options);
+            } catch (IOException ie) {
+                content = ContentFactory.newContent(uri, f, options);
+            }
+        } else {
+            content = ContentFactory.newContent(uri, f, options);
+        }
+        return content;
+    }
+
+    protected boolean moduleCanBeReadAsString(DocumentFormat format) {
+        return format != null && (format.equals(DocumentFormat.JSON) || format.equals(DocumentFormat.TEXT)
+                || format.equals(DocumentFormat.XML));
     }
 
     @Override
@@ -252,5 +288,9 @@ public class XccAssetLoader extends LoggingObject implements FileVisitor<Path> {
 
     public void setFileFilter(FileFilter fileFilter) {
         this.fileFilter = fileFilter;
+    }
+
+    public void setModuleTokenReplacer(ModuleTokenReplacer moduleTokenReplacer) {
+        this.moduleTokenReplacer = moduleTokenReplacer;
     }
 }
