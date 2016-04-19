@@ -6,6 +6,8 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.util.FileCopyUtils;
 
+import com.marklogic.client.modulesloader.tokenreplacer.RoxyModuleTokenReplacer;
+
 public class RoxyModuleTokenReplacerTest extends Assert {
 
     @Test

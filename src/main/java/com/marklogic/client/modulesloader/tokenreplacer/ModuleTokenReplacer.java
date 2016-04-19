@@ -1,4 +1,4 @@
-package com.marklogic.client.modulesloader.impl;
+package com.marklogic.client.modulesloader.tokenreplacer;
 
 public interface ModuleTokenReplacer {
 

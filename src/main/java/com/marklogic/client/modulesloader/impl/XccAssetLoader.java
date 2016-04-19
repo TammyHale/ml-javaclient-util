@@ -17,6 +17,7 @@ import org.springframework.util.FileCopyUtils;
 
 import com.marklogic.client.helper.LoggingObject;
 import com.marklogic.client.modulesloader.ModulesManager;
+import com.marklogic.client.modulesloader.tokenreplacer.ModuleTokenReplacer;
 import com.marklogic.client.modulesloader.xcc.CommaDelimitedPermissionsParser;
 import com.marklogic.client.modulesloader.xcc.DefaultDocumentFormatGetter;
 import com.marklogic.client.modulesloader.xcc.DocumentFormatGetter;
