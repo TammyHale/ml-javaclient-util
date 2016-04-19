@@ -80,6 +80,9 @@ public class RoxyModuleTokenReplacer extends LoggingObject implements ModuleToke
     public String replaceTokensInModule(String moduleText) {
         for (Object key : properties.keySet()) {
             String skey = propertyPrefix != null ? propertyPrefix + key : key.toString();
+            if (logger.isTraceEnabled()) {
+                logger.trace("Checking for key in module text: " + skey);
+            }
             if (moduleText.contains(skey)) {
                 String value = properties.getProperty(key.toString());
                 value = helper.replacePlaceholders(value, properties);

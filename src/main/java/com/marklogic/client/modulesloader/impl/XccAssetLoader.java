@@ -129,13 +129,13 @@ public class XccAssetLoader extends LoggingObject implements FileVisitor<Path> {
     public FileVisitResult preVisitDirectory(Path path, BasicFileAttributes attributes) throws IOException {
         boolean accept = fileFilter.accept(path.toFile());
         if (accept) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Visiting directory: " + path);
+            if (logger.isTraceEnabled()) {
+                logger.trace("Visiting directory: " + path);
             }
             return FileVisitResult.CONTINUE;
         } else {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Skipping directory: " + path);
+            if (logger.isTraceEnabled()) {
+                logger.trace("Skipping directory: " + path);
             }
             return FileVisitResult.SKIP_SUBTREE;
         }
